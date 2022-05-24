@@ -131,11 +131,13 @@ void Dictionary::setValue(keyType k, valType v){
     Node *z = new Node(k, v);
     z->left = nil;
     z->right = nil;
+    z->parent = nil;
+
     Node *y = nil;
     Node *x = root;
     while(x != nil){
         y = x;
-        if(z->key == x->key){
+        if(z->key == y->key){
             y->val = z->val;
             delete(z);
             return;
@@ -309,7 +311,10 @@ bool Dictionary::equals(const Dictionary& D) const{
 void Dictionary::inOrderString(std::string& s, Node* R) const{
     if(R != nil){
         inOrderString(s, R->left);
-        s += R->key + " : " + std::to_string(R->val) + "\n";
+        s.append(R->key);
+        s.append(" : ");
+        s.append(std::to_string(R->val));
+        s.append("\n");
         inOrderString(s, R->right);
     }
 }
@@ -320,7 +325,8 @@ void Dictionary::inOrderString(std::string& s, Node* R) const{
 // by a pre-order tree walk.
 void Dictionary::preOrderString(std::string& s, Node* R) const{
     if(R != nil){
-        s += R->key + "\n";
+        s.append(R->key);
+        s.append("\n");
         preOrderString(s, R->left);
         preOrderString(s, R->right);
     }
