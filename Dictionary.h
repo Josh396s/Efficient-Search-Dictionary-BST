@@ -57,6 +57,11 @@ private:
     // Deletes all Nodes in the subtree rooted at R, sets R to nil.
     void postOrderDelete(Node* R);
 
+    // preOrderCopy()
+    // Recursively inserts a deep copy of the subtree rooted at R into this
+    // Dictionary. Recursion terminates at N.
+    void preOrderCopy(Node* R, Node* N);
+
     // transplant()
     // Helps replace nodes when deleting
     void transplant(Node* u, Node* v);

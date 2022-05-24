@@ -19,6 +19,8 @@
 
 using namespace std;
 
+#define MAX_LEN 300
+
 int main(int argc, char * argv[]){
     //Ensure 2 arguments are provided
     if(argc != 3){
@@ -34,31 +36,45 @@ int main(int argc, char * argv[]){
     ofstream out;
     out.open(argv[2], ios::trunc);
 
+
+    int line_count;
+    size_t begin, end, len;
     string line;
-    string juice;
-    if(in.is_open()){//Read from input file
-        while(getline(in, line)){//Read line by line
-                juice += line + " ";
-        }
-    } else {
-        cout << "Error: Unable to open input file";
-    }
+    string tokenBuffer;
+    string token;
+    string delim = " ";
 
-    vector<string> words{};
-    size_t position = 0;
-    string space = " ";
-    while((position = juice.find(space)) != string::npos){//Read in the words
-        words.push_back(juice.substr(0, position));
-        juice.erase(0, position + space.length());
-    }
-
-    int count = 1;
+// read each line of input file, place in dictionary
     Dictionary A;
-    if(out.is_open()){
-        for (const auto &str : words) {//Make the Dictionary
-            A.setValue(str, count);
-            count++;
+    line_count = 0;
+    while( getline(in, line) )  {
+        line_count++;
+        len = line.length();
+
+        // get tokens in this line
+        tokenBuffer = "";
+
+        // get first token
+        begin = min(line.find_first_not_of(delim, 0), len);
+        end   = min(line.find_first_of(delim, begin), len);
+        token = line.substr(begin, end-begin);
+
+        while( token!="" ){  // we have a token
+            // update token buffer
+            tokenBuffer += "   "+token;
+            A.setValue(token, line_count);
+
+            // get next token
+            begin = min(line.find_first_not_of(delim, end+1), len);
+            end   = min(line.find_first_of(delim, begin), len);
+            token = line.substr(begin, end-begin);
         }
+
+    }
+
+
+
+    if(out.is_open()){//Print to outfile
         out << "" << A;
         out << "\n";
         out << "" << A.pre_string();

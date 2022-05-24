@@ -34,18 +34,13 @@ Dictionary::Dictionary(){
 // Copy constructor
 Dictionary::Dictionary(const Dictionary& D){
     //Empty Dictionary
-    nil = new Node("\0\0", -999);
-    root = nil;
-    current = nil;
-    num_pairs = 0;
+    this->nil = new Node("\0\0", -999);
+    this->root = this->nil;
+    this->current = this->nil;
+    this->num_pairs = 0;
 
     //Load elements of D into Dictionary
-    Node *x = D.root;
-    x = findMin(x);
-    while(x->key != "\0\0"){
-        this->setValue(x->key, x->val);
-        x = findNext(x);
-    }
+    this->preOrderCopy(D.root, D.nil);
 }
 
 // Destructor
@@ -133,7 +128,7 @@ void Dictionary::setValue(keyType k, valType v){
     Node *x = root;
     while(x != nil){
         y = x;
-        if(z->key == y->key){
+        if(z->key == x->key){
             y->val = z->val;
             delete(z);
             return;
@@ -276,7 +271,7 @@ bool Dictionary::equals(const Dictionary& D) const{
     Node *y = B.root;
     x = A.findMin(x);
     y = B.findMin(y);
-    while(x->key != "\0\0"){
+    while(x != nil){
         if(x->key != y->key || x->val != y->val){
             return false;
         }
@@ -305,7 +300,7 @@ void Dictionary::inOrderString(std::string& s, Node* R) const{
 // string consists of keys only, separated by "\n", with the order determined
 // by a pre-order tree walk.
 void Dictionary::preOrderString(std::string& s, Node* R) const{
-    if(R->key != "\0\0"){
+    if(R != nil){
         s += R->key + "\n";
         preOrderString(s, R->left);
         preOrderString(s, R->right);
@@ -321,6 +316,18 @@ void Dictionary::postOrderDelete(Node* R){
         delete(R);
         num_pairs--;
     }
+}
+
+// preOrderCopy()
+// Recursively inserts a deep copy of the subtree rooted at R into this
+// Dictionary. Recursion terminates at N.
+void Dictionary::preOrderCopy(Node* R, Node* N){
+    if(R != N){
+        //this->setValue(R->key, R->val);
+        preOrderCopy(R->left, N);
+        preOrderCopy(R->right, N);
+    }
+    return;
 }
 
 // transplant()
@@ -359,7 +366,10 @@ Dictionary::Node* Dictionary::search(Node* R, keyType k) const{
 // If the subtree rooted at R is not empty, returns a pointer to the
 // leftmost Node in that subtree, otherwise returns nil.
 Dictionary::Node* Dictionary::findMin(Node* R){
-    while(R->left->key != "\0\0"){
+    if(R == nil){
+        return nil;
+    }
+    while(R->left != nil){
         R = R->left;
     }
     return R;
@@ -369,7 +379,10 @@ Dictionary::Node* Dictionary::findMin(Node* R){
 // If the subtree rooted at R is not empty, returns a pointer to the
 // rightmost Node in that subtree, otherwise returns nil.
 Dictionary::Node* Dictionary::findMax(Node* R){
-    while(R->right->key != "\0\0"){
+    if(R == nil){
+        return nil;
+    }
+    while(R->right != nil){
         R = R->right;
     }
     return R;
@@ -380,11 +393,11 @@ Dictionary::Node* Dictionary::findMax(Node* R){
 // Node after N in an in-order tree walk.  If N points to the rightmost
 // Node, or is nil, returns nil.
 Dictionary::Node* Dictionary::findNext(Node* N){
-    if(N->right->key != "\0\0"){
+    if(N->right != nil){
         return findMin(N->right);
     }
     Node *y = N->parent;
-    while(y->key != "\0\0" && N == y->right){
+    while(y != nil && N == y->right){
         N = y;
         y = y->parent;
     }
@@ -396,11 +409,11 @@ Dictionary::Node* Dictionary::findNext(Node* N){
 // Node before N in an in-order tree walk.  If N points to the leftmost
 // Node, or is nil, returns nil.
 Dictionary::Node* Dictionary::findPrev(Node* N){
-    if(N->left->key != "\0\0"){
+    if(N->left != nil){
         return findMax(N->left);
     }
     Node *y = N->parent;
-    while(y->key != "\0\0" && N == y->left){
+    while(y != nil && N == y->left){
         N = y;
         y = y->parent;
     }
@@ -426,12 +439,12 @@ bool operator==( const Dictionary& A, const Dictionary& B ){
 // Overwrites the state of this Dictionary with state of D, and returns a reference to this Dictionary
 Dictionary& Dictionary::operator=( const Dictionary& D ){
     if(this != &D){//Not self assignment
-        Node *x = D.root;
-        x = findMin(x);
-        while(x->key != "\0\0"){
-            this->setValue(x->key, x->val);
-            x = findNext(x);
-        }
+        Dictionary temp = D;
+        this->preOrderCopy(D.root, D.nil);
+        std::swap(nil, temp.nil);
+        std::swap(root, temp.root);
+        std::swap(current, temp.current);
+        std::swap(num_pairs, temp.num_pairs);
     }
     return *this;
 }
