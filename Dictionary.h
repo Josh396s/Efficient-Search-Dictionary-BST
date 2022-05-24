@@ -53,11 +53,6 @@ private:
     // by a pre-order tree walk.
     void preOrderString(std::string& s, Node* R) const;
 
-    // preOrderCopy()
-    // Recursively inserts a deep copy of the subtree rooted at R into this
-    // Dictionary. Recursion terminates at N.
-    void preOrderCopy(Node* R, Node* N);
-
     // postOrderDelete()
     // Deletes all Nodes in the subtree rooted at R, sets R to nil.
     void postOrderDelete(Node* R);
