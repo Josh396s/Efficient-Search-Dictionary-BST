@@ -145,7 +145,6 @@ void Dictionary::setValue(keyType k, valType v){
         }
     }
     z->parent = y;
-
     if(y == nil){
         root = z;
     }
@@ -171,7 +170,7 @@ void Dictionary::remove(keyType k){
         delete(z);
     }
     else if(z->right == nil){
-        transplant(z, z->right);
+        transplant(z, z->left);
         delete(z);
     }
     else{
@@ -299,10 +298,10 @@ void Dictionary::inOrderString(std::string& s, Node* R) const{
 // string consists of keys only, separated by "\n", with the order determined
 // by a pre-order tree walk.
 void Dictionary::preOrderString(std::string& s, Node* R) const{
-    if(R != nil){
-        s += R->key + ":" + std::to_string(R->val) + "\n";
-        inOrderString(s, R->left);
-        inOrderString(s, R->right);
+    if(R->key != "\0\0"){
+        s += R->key + "\n";
+        preOrderString(s, R->left);
+        preOrderString(s, R->right);
     }
 }
 
