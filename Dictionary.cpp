@@ -113,8 +113,15 @@ valType& Dictionary::currentVal() const{
 // clear()
 // Resets this Dictionary to the empty state, containing no pairs
 void Dictionary::clear(){
+    if(root == nil){//If empty
+        current = nil;
+        num_pairs = 0;
+        return;
+    }
     postOrderDelete(root);
     root = nil;
+    current = nil;
+    num_pairs = 0;
 }
 
 // setValue()
@@ -160,6 +167,9 @@ void Dictionary::remove(keyType k){
         throw std::out_of_range("Dictionary: remove(): key \""  + k  + "\" does not exist");
     }
     Node *z = search(root, k);
+    if(z == current){//If deleting current
+        current = nil;
+    }
     if(z->left == nil){
         transplant(z, z->right);
         delete(z);
@@ -190,7 +200,7 @@ void Dictionary::begin(){
     if(root == nil){//If empty, do nothing
         return;
     }
-    current = root;
+    current = findMin(root);
 }
 
 // end()
@@ -262,6 +272,9 @@ std::string Dictionary::pre_string() const{
 // equals()
 // Returns true if and only if this Dictionary contains the same (key, value) pairs as Dictionary D
 bool Dictionary::equals(const Dictionary& D) const{
+    if(this->num_pairs == 0 && D.num_pairs == 0){//If both are empty
+        return true;
+    }
     if(this->num_pairs != D.num_pairs){//If they are different sizes
         return false;
     }
@@ -271,12 +284,18 @@ bool Dictionary::equals(const Dictionary& D) const{
     Node *y = B.root;
     x = A.findMin(x);
     y = B.findMin(y);
-    while(x != nil){
+    while(x != A.nil && y != B.nil){
         if(x->key != y->key || x->val != y->val){
             return false;
         }
         x = A.findNext(x);
         y = B.findNext(y);
+    }
+    if(x == nil && y != nil){//If y has more
+        return false;
+    }
+    if(y == nil && x != nil){//If x has more
+        return false;
     }
     return true;
 }
