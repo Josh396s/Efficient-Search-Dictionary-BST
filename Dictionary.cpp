@@ -30,19 +30,28 @@ Dictionary::Dictionary(){
     current = nil;
     num_pairs = 0;
 }
-/*
+
 // Copy constructor
 Dictionary::Dictionary(const Dictionary& D){
+    //Empty Dictionary
     nil = new Node("\0\0", -999);
-    root = nullptr;
-    current = nullptr;
+    root = nil;
+    current = nil;
     num_pairs = 0;
+
+    //Load elements of D into Dictionary
+    Node *x = D.root;
+    x = findMin(x);
+    while(x->key != "\0\0"){
+        this->setValue(x->key, x->val);
+        x = findNext(x);
+    }
 }
-*/
+
 // Destructor
 Dictionary::~Dictionary(){
     postOrderDelete(root);
-    delete(root);
+    delete(nil);
 }
 
 // Access functions --------------------------------------------------------
@@ -178,24 +187,40 @@ void Dictionary::remove(keyType k){
 // If non-empty, places current iterator at the first (key, value) pair
 // (as defined by the order operator < on keys), otherwise does nothing.
 void Dictionary::begin(){
-    if(root == nullptr){//If empty, do nothing
+    if(root == nil){//If empty, do nothing
         return;
     }
     current = root;
 }
-/*
+
 // end()
 // If non-empty, places current iterator at the last (key, value) pair
 // (as defined by the order operator < on keys), otherwise does nothing.
-void end();
+void Dictionary::end(){
+    if(root == nil){//If empty, do nothing
+        return;
+    }
+    current = findMax(root);
+    return;
+}
+
 
 // next()
 // If the current iterator is not at the last pair, advances current
 // to the next pair (as defined by the order operator < on keys). If
 // the current iterator is at the last pair, makes current undefined.
 // Pre: hasCurrent()
-void next();
+void Dictionary::next(){
+    if(!hasCurrent()){
+        throw std::out_of_range("Dictionary: next(): Current Iterator is undefined");
+    }
+    current = findNext(current);
+    if(current->right == nil && current->left == nil){//If current
+        current = nil;
+    }
+}
 
+/*
 // prev()
 // If the current iterator is not at the first pair, moves current to
 // the previous pair (as defined by the order operator < on keys). If
@@ -223,15 +248,35 @@ std::string Dictionary::to_string() const{
 // newline "\n" characters. The key order is given by a pre-order tree walk
 std::string Dictionary::pre_string() const{
     std::string s = "";
-    inOrderString(s, root);
+    preOrderString(s, root);
     return s;
 }
 /*
 // equals()
 // Returns true if and only if this Dictionary contains the same (key, value) pairs as Dictionary D
-bool equals(const Dictionary& D) const;
+bool Dictionary::equals(const Dictionary& D) const{
+    if(this->num_pairs != D.num_pairs){//If they are different sizes
+        return false;
+    }
+    Dictionary A = *this;
+    Dictionary B = D;
+    Node *first = A.root;
+    Node *second = B.root;
+    while(first != nil){
+        A.next();
+        B.next();
+        first = A.current;
+        second = B.current;
+        if(first->val != second->val){
+            return false;
+        }
+        else if(first->key != second->key){
+            return false;
+        }
+    }
+    return true;
+}
 */
-
 // Helper Functions (Optional) ---------------------------------------------
 
 // inOrderString()
@@ -310,7 +355,7 @@ Dictionary::Node* Dictionary::search(Node* R, keyType k) const{
 // If the subtree rooted at R is not empty, returns a pointer to the
 // leftmost Node in that subtree, otherwise returns nil.
 Dictionary::Node* Dictionary::findMin(Node* R){
-    while(R->left != nil){
+    while(R->left->key != "\0\0"){
         R = R->left;
     }
     return R;
@@ -320,7 +365,10 @@ Dictionary::Node* Dictionary::findMin(Node* R){
 // If the subtree rooted at R is not empty, returns a pointer to the
 // rightmost Node in that subtree, otherwise returns nil.
 Dictionary::Node* Dictionary::findMax(Node* R){
-    while(R->right != nil){
+    if(R == nil){
+        return nil;
+    }
+    while(R->right->key != "\0\0"){
         R = R->right;
     }
     return R;
@@ -331,11 +379,11 @@ Dictionary::Node* Dictionary::findMax(Node* R){
 // Node after N in an in-order tree walk.  If N points to the rightmost
 // Node, or is nil, returns nil.
 Dictionary::Node* Dictionary::findNext(Node* N){
-    if(N->right != nil){
+    if(N->right->key != "\0\0"){
         return findMin(N->right);
     }
     Node *y = N->parent;
-    while(y != nil && N == y->right){
+    while(y->key != "\0\0" && N == y->right){
         N = y;
         y = y->parent;
     }
@@ -359,10 +407,20 @@ std::ostream& operator<<( std::ostream& stream, Dictionary& D ){
 /*
 // operator==()
 // Returns true if and only if Dictionary A equals Dictionary B, as defined by member function equals()
-friend bool operator==( const Dictionary& A, const Dictionary& B );
-
+bool operator==( const Dictionary& A, const Dictionary& B ){
+    return A.Dictionary::equals(B);
+}
+*/
 // operator=()
 // Overwrites the state of this Dictionary with state of D, and returns a reference to this Dictionary
-Dictionary& operator=( const Dictionary& D );
-
-*/
+Dictionary& Dictionary::operator=( const Dictionary& D ){
+    if(this != &D){//Not self assignment
+        Node *x = D.root;
+        x = findMin(x);
+        while(x->key != "\0\0"){
+            this->setValue(x->key, x->val);
+            x = findNext(x);
+        }
+    }
+    return *this;
+}
