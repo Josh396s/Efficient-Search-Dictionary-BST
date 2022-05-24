@@ -323,7 +323,7 @@ void Dictionary::postOrderDelete(Node* R){
 // Dictionary. Recursion terminates at N.
 void Dictionary::preOrderCopy(Node* R, Node* N){
     if(R != N){
-        //this->setValue(R->key, R->val);
+        this->setValue(R->key, R->val);
         preOrderCopy(R->left, N);
         preOrderCopy(R->right, N);
     }
@@ -419,7 +419,6 @@ Dictionary::Node* Dictionary::findPrev(Node* N){
     }
     return y;
 }
-
 
 // Overloaded Operators ----------------------------------------------------
 
