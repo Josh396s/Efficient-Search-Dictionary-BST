@@ -133,6 +133,10 @@ void Dictionary::setValue(keyType k, valType v){
     Node *x = root;
     while(x != nil){
         y = x;
+        if(z->key == y->key){
+            y->val = z->val;
+            return;
+        }
         if(z->key < x->key){
             x = x->left;
         }else{
@@ -140,6 +144,7 @@ void Dictionary::setValue(keyType k, valType v){
         }
     }
     z->parent = y;
+
     if(y == nil){
         root = z;
     }
@@ -251,7 +256,7 @@ std::string Dictionary::pre_string() const{
     preOrderString(s, root);
     return s;
 }
-/*
+
 // equals()
 // Returns true if and only if this Dictionary contains the same (key, value) pairs as Dictionary D
 bool Dictionary::equals(const Dictionary& D) const{
@@ -260,23 +265,20 @@ bool Dictionary::equals(const Dictionary& D) const{
     }
     Dictionary A = *this;
     Dictionary B = D;
-    Node *first = A.root;
-    Node *second = B.root;
-    while(first != nil){
-        A.next();
-        B.next();
-        first = A.current;
-        second = B.current;
-        if(first->val != second->val){
+    Node *x = A.root;
+    Node *y = B.root;
+    x = A.findMin(x);
+    y = B.findMin(y);
+    while(x->key != "\0\0"){
+        if(x->key != y->key || x->val != y->val){
             return false;
         }
-        else if(first->key != second->key){
-            return false;
-        }
+        x = A.findNext(x);
+        y = B.findNext(y);
     }
     return true;
 }
-*/
+
 // Helper Functions (Optional) ---------------------------------------------
 
 // inOrderString()
@@ -302,12 +304,7 @@ void Dictionary::preOrderString(std::string& s, Node* R) const{
         inOrderString(s, R->right);
     }
 }
-/*
-// preOrderCopy()
-// Recursively inserts a deep copy of the subtree rooted at R into this
-// Dictionary. Recursion terminates at N.
-void preOrderCopy(Node* R, Node* N);
-*/
+
 // postOrderDelete()
 // Deletes all Nodes in the subtree rooted at R, sets R to nil.
 void Dictionary::postOrderDelete(Node* R){
@@ -365,9 +362,6 @@ Dictionary::Node* Dictionary::findMin(Node* R){
 // If the subtree rooted at R is not empty, returns a pointer to the
 // rightmost Node in that subtree, otherwise returns nil.
 Dictionary::Node* Dictionary::findMax(Node* R){
-    if(R == nil){
-        return nil;
-    }
     while(R->right->key != "\0\0"){
         R = R->right;
     }
@@ -404,13 +398,13 @@ Node* findPrev(Node* N);
 std::ostream& operator<<( std::ostream& stream, Dictionary& D ){
     return stream << D.Dictionary::to_string();
 }
-/*
+
 // operator==()
 // Returns true if and only if Dictionary A equals Dictionary B, as defined by member function equals()
 bool operator==( const Dictionary& A, const Dictionary& B ){
     return A.Dictionary::equals(B);
 }
-*/
+
 // operator=()
 // Overwrites the state of this Dictionary with state of D, and returns a reference to this Dictionary
 Dictionary& Dictionary::operator=( const Dictionary& D ){
