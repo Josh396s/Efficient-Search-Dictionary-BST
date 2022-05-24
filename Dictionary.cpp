@@ -78,7 +78,7 @@ bool Dictionary::contains(keyType k) const{
 // Pre: contains(k)
 valType& Dictionary::getValue(keyType k) const{
     if(!contains(k)){
-        throw std::out_of_range("Dictionary: getValue(): Pair does not exist");
+        throw std::out_of_range("Dictionary: getValue(): key \"" + k + "\" does not exist");
     }
     Node *pair = search(root, k);
     return pair->val;
@@ -98,7 +98,7 @@ bool Dictionary::hasCurrent() const{
 // Pre: hasCurrent()
 keyType Dictionary::currentKey() const{
     if(!hasCurrent()){
-        throw std::out_of_range("Dictionary: currentKey(): Current iterator is undefined");
+        throw std::out_of_range("Dictionary: currentKey(): current undefined");
     }
     return current->key;
 }
@@ -108,7 +108,7 @@ keyType Dictionary::currentKey() const{
 // Pre: hasCurrent()
 valType& Dictionary::currentVal() const{
     if(!hasCurrent()){
-        throw std::out_of_range("Dictionary: currentVal(): Current iterator is undefined");
+        throw std::out_of_range("Dictionary: currentVal(): current undefined");
     }
     return current->val;
 }
@@ -162,7 +162,7 @@ void Dictionary::setValue(keyType k, valType v){
 // Pre: contains(k).
 void Dictionary::remove(keyType k){
     if(!contains(k)){
-        throw std::out_of_range("Dictionary: remove(): Pair does not exist");
+        throw std::out_of_range("Dictionary: remove(): key \""  + k  + "\" does not exist");
     }
     Node *z = search(root, k);
     if(z->left == nil){
@@ -217,22 +217,29 @@ void Dictionary::end(){
 // Pre: hasCurrent()
 void Dictionary::next(){
     if(!hasCurrent()){
-        throw std::out_of_range("Dictionary: next(): Current Iterator is undefined");
+        throw std::out_of_range("Dictionary: next(): current not defined");
     }
     current = findNext(current);
-    if(current->right == nil && current->left == nil){//If current
+    if(current == nil){//If current is at last pair
         current = nil;
     }
 }
 
-/*
+
 // prev()
 // If the current iterator is not at the first pair, moves current to
 // the previous pair (as defined by the order operator < on keys). If
 // the current iterator is at the first pair, makes current undefined.
 // Pre: hasCurrent()
-void prev();
-*/
+void Dictionary::prev(){
+    if(!hasCurrent()){
+        throw std::out_of_range("Dictionary: prev(): current not defined");
+    }
+    current = findPrev(current);
+    if(current == nil){//If current is at last pair
+        current = nil;
+    }
+}
 
 // Other Functions ---------------------------------------------------------
 
@@ -288,7 +295,7 @@ bool Dictionary::equals(const Dictionary& D) const{
 void Dictionary::inOrderString(std::string& s, Node* R) const{
     if(R != nil){
         inOrderString(s, R->left);
-        s += R->key + ":" + std::to_string(R->val) + "\n";
+        s += R->key + " : " + std::to_string(R->val) + "\n";
         inOrderString(s, R->right);
     }
 }
@@ -383,13 +390,23 @@ Dictionary::Node* Dictionary::findNext(Node* N){
     }
     return y;
 }
-/*
+
 // findPrev()
 // If N does not point to the leftmost Node, returns a pointer to the
 // Node before N in an in-order tree walk.  If N points to the leftmost
 // Node, or is nil, returns nil.
-Node* findPrev(Node* N);
-*/
+Dictionary::Node* Dictionary::findPrev(Node* N){
+    if(N->left->key != "\0\0"){
+        return findMax(N->left);
+    }
+    Node *y = N->parent;
+    while(y->key != "\0\0" && N == y->left){
+        N = y;
+        y = y->parent;
+    }
+    return y;
+}
+
 
 // Overloaded Operators ----------------------------------------------------
 
